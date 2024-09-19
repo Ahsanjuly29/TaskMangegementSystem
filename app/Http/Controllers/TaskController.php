@@ -77,7 +77,7 @@ class TaskController extends Controller
     public function edit(string $id) {
         try {
 
-            $task = Task::find($id);
+            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($id);
             if (empty($task)) {
                 throw new \Exception('Unable to Find This Task');
             }
@@ -102,7 +102,7 @@ class TaskController extends Controller
     public function update(TaskRequest $request, string $id)
     {
         try {
-            $task = Task::find($id);
+            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($id);
             if (empty($task)) {
                 throw new \Exception('Unable to Find This Task');
             }
@@ -125,7 +125,7 @@ class TaskController extends Controller
     public function changeStatus(Request $request)
     {
         try {
-            $task = Task::find($request->id);
+            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($request->id);
             if (empty($task)) {
                 throw new \Exception('Unable to Find This Task');
             }
@@ -151,7 +151,7 @@ class TaskController extends Controller
     public function changeDueDate(Request $request)
     {
         try {
-            $task = Task::find($request->id);
+            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($request->id);
             if (empty($task)) {
                 throw new \Exception('Unable to Find This Task');
             }
@@ -182,7 +182,7 @@ class TaskController extends Controller
     public function destroy(string $id)
     {
         try {
-            $task = Task::find($id);
+            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($id);
             if (! $task) {
                 throw new \Exception('Unable to Find This Task');
             }
