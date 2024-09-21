@@ -5,34 +5,30 @@ namespace App\Http\Controllers;
 use App\Actions\TaskApi\FilterTasks;
 use App\Http\Requests\TaskRequest;
 use App\Models\Task;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display all listing of task.
+     *
+     * @response
      */
     public function index(Request $request, FilterTasks $filterTasks)
     {
         try {
-            return response()->json([
-                'status' => 1,
-                'message' => 'Showing All Tasks',
-                'data' => $filterTasks->handle($request),
-            ], 200);
-        } catch (\Exception $e) {
+            $data = $filterTasks->handle($request);
 
-            return response()->json([
-                'status' => 0,
-                'message' => $e->getMessage()
-            ], 200);
+            return successResponse('Showing All Tasks', $data);
+
+        } catch (\Exception $e) {
+            return errorResponse($e);
         }
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display form to Create Task.
      */
     public function create()
     {
@@ -40,7 +36,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store new task.
      */
     public function store(TaskRequest $request)
     {
@@ -49,22 +45,17 @@ class TaskController extends Controller
             $data['assigned_to'] = Auth::user()->id;
             $data['created_by'] = Auth::user()->id;
 
-            return response()->json([
-                'status' => 1,
-                'message' => 'New Task has been Created',
-                'data' => Task::create($data),
-            ], 200);
-        } catch (\Exception $e) {
+            $taskData = Task::create($data);
 
-            return response()->json([
-                'status' => 0,
-                'message' => $e->getMessage()
-            ], 200);
+            return successResponse('New Task has been Created', $taskData);
+
+        } catch (\Exception $e) {
+            return errorResponse($e);
         }
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified task.
      */
     public function show(string $id)
     {
@@ -72,112 +63,89 @@ class TaskController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Display the form for editing the task.
      */
-    public function edit(string $id) {
+    public function edit(string $id)
+    {
         try {
-
-            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($id);
-            if (empty($task)) {
+            $taskData = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($id);
+            if (empty($taskData)) {
                 throw new \Exception('Unable to Find This Task');
             }
 
-            return response()->json([
-                'status' => 1,
-                'message' => 'Task Details',
-                'data' => $task,
-            ], 200);
-        } catch (\Exception $e) {
+            return successResponse('Task Details', $taskData);
 
-            return response()->json([
-                'status' => 0,
-                'message' => $e->getMessage()
-            ], 200);
+        } catch (\Exception $e) {
+            return errorResponse($e);
         }
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update task in DB.
      */
     public function update(TaskRequest $request, string $id)
     {
         try {
-            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($id);
-            if (empty($task)) {
+            $taskData = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($id);
+            if (empty($taskData)) {
                 throw new \Exception('Unable to Find This Task');
             }
-            $task->update($request->validated());
-            
-            return response()->json([
-                'status' => 1,
-                'message' => 'This Task has been Updated',
-                'data' => $task,
-            ], 200);
-        } catch (\Exception $e) {
 
-            return response()->json([
-                'status' => 0,
-                'message' => $e->getMessage()
-            ], 200);
+            $taskData->update($request->validated());
+
+            return successResponse('This Task has been Updated', $taskData);
+
+        } catch (\Exception $e) {
+            return errorResponse($e);
         }
     }
 
+    /**
+     * Update task Status.
+     */
     public function changeStatus(Request $request)
     {
         try {
-            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($request->id);
-            if (empty($task)) {
+            $taskData = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($request->id);
+            if (empty($taskData)) {
                 throw new \Exception('Unable to Find This Task');
             }
 
-            $task->update([
-                'status' => $request->status
+            $taskData->update([
+                'status' => $request->status,
             ]);
 
-            return response()->json([
-                'status' => 1,
-                'message' => 'Status updated to '.$request->status,
-                'data' => []
-            ], 200);
-        } catch (\Exception $e) {
+            return successResponse('Status updated to '.$request->status, $taskData);
 
-            return response()->json([
-                'status' => 0,
-                'message' => $e->getMessage()
-            ], 200);
+        } catch (\Exception $e) {
+            return errorResponse($e);
         }
     }
 
+    /**
+     * Update Due Date Of task.
+     */
     public function changeDueDate(Request $request)
     {
         try {
-            $task = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($request->id);
-            if (empty($task)) {
+            $taskData = Task::whereAny(['assigned_to', 'created_by'], Auth::user()->id)->find($request->id);
+            if (empty($taskData)) {
                 throw new \Exception('Unable to Find This Task');
             }
 
-            $task->update([
-                'due_date' => $request->due_date
+            $taskData->update([
+                'due_date' => $request->due_date,
             ]);
 
-            return response()->json([
-                'status' => 1,
-                'message' => 'Due date updated to '.$request->due_date,
-                'data' => []
-            ], 200);
-        } catch (\Exception $e) {
+            return successResponse('Due date updated to '.$request->due_date, $taskData);
 
-            return response()->json([
-                'status' => 0,
-                'message' => $e->getMessage()
-            ], 200);
+        } catch (\Exception $e) {
+            return errorResponse($e);
         }
     }
 
-
-
     /**
-     * Remove the specified resource from storage.
+     * Remove the Task from storage.
      */
     public function destroy(string $id)
     {
@@ -188,16 +156,11 @@ class TaskController extends Controller
             }
 
             $task->destroy($id);
-            return response()->json([
-                'status' => 1,
-                'message' => 'This Task has been Destroyed',
-            ], 200);
-        } catch (\Exception $e) {
 
-            return response()->json([
-                'status' => 0,
-                'message' => $e->getMessage()
-            ], 200);
+            return successResponse('This Task has been Destroyed');
+
+        } catch (\Exception $e) {
+            return errorResponse($e);
         }
     }
 }

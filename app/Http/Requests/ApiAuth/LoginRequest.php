@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\ApiAuth;
 
 use App\Traits\IsValidRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
-class TaskRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     use IsValidRequest;
 
@@ -25,10 +25,8 @@ class TaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'description' => 'nullable',
-            'status' => 'required|in:PENDING,IN_PROGRESS,COMPLETED',
-            'due_date' => 'required|date_format:Y-m-d',
+            'email' => 'required|email',
+            'password' => 'required',
         ];
     }
 }
