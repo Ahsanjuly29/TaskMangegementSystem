@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ApiAuth\LoginRequest;
 use App\Http\Requests\ApiAuth\RegisterRequest;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 
 class ApiAuthController extends Controller
 {
@@ -16,17 +17,17 @@ class ApiAuthController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function register(RegisterRequest $request): JsonResponse
+    public function register(RegisterRequest $request)
     {
         try {
-            $input = $request->all();
+            // $input = $request->all();
+            $input = $request->validated();
             $input['password'] = bcrypt($input['password']);
-            $user = User::create($input);
-            $data['token'] = $user->createToken($user->email)->plainTextToken;
-            $data['name'] = $user->name;
+
+            User::create($input);
+            $data = $this->generateAuthToken();
 
             return successResponse('User registered successfully', $data);
-
         } catch (\Exception $e) {
             return errorResponse($e);
         }
@@ -35,30 +36,19 @@ class ApiAuthController extends Controller
     /**
      * Login api
      */
-    public function login(LoginRequest $request): JsonResponse
+    public function login(LoginRequest $request)
     {
         try {
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                $user = Auth::user();
-                $data['token'] = $user->createToken($user->email)->plainTextToken;
-                $data['name'] = $user->name;
 
+                $data = $this->generateAuthToken();
                 return successResponse('User login successfully', $data);
-
             } else {
                 throw new \Exception('Password or Email is Wrong');
             }
         } catch (\Exception $e) {
             return errorResponse($e);
         }
-    }
-
-    /**
-     *Checkout own data
-     */
-    public function me()
-    {
-        return response()->json(auth('sanctum')->user());
     }
 
     /**
@@ -70,7 +60,6 @@ class ApiAuthController extends Controller
             Auth::logout();
 
             return successResponse('User Logout Successfully', []);
-
         } catch (\Exception $e) {
             return errorResponse($e);
         }

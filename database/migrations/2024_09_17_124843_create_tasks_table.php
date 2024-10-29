@@ -15,12 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->longText('description')->nullable();
-
             $table->string('status')->default('PENDING')->comment('PENDING', 'IN PROGRESS', 'COMPLETED');
-
             $table->unsignedBigInteger('assigned_to');
             $table->unsignedBigInteger('created_by');
-
             $table->dateTime('due_date');
             $table->timestamps();
         });

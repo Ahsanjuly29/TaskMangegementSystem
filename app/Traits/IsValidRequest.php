@@ -12,7 +12,6 @@ trait IsValidRequest
         try {
             // Checking if the request is valid api request or not.
             isApiRequestValidator($this);
-
             return $this->all();
         } catch (\Exception $e) {
             throw new HttpResponseException(
@@ -35,6 +34,7 @@ trait IsValidRequest
                 response()->json([
                     'status' => 0,
                     'message' => $validator->getMessageBag()->toArray(),
+                    'errors' => $validator->errors(),
                 ], 422)
             );
         }
