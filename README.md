@@ -1,7 +1,3 @@
-Thank you for clarifying. Here’s an updated README that indicates linking scripts in the `@extends('master.app')` layout, without adding them directly in the view setup.
-
----
-
 # 📋 Dynamic AJAX CRUD Task Management using LARAVEL API With BEARER TOKEN
 
 This Laravel project implements AJAX-based CRUD operations for managing tasks. The project includes dynamic modal forms for creating and editing tasks, a multi-delete feature, and integrates with Laravel's API routes for back-end processing.
