@@ -1,252 +1,271 @@
 ```markdown
-# 📋 Task Management System Using Dynamic AJAX CRUD and Laravel API with Bearer Token 🚀
+# 📝 Task Management System Using Dynamic AJAX CRUD with Laravel API and Bearer Token 🔒
 
-Welcome to the **Task Management System**! 🎉 This project is built with **Laravel**, **AJAX**, and **Yajra Datatables**, making it ideal for managing tasks dynamically, with a smooth user experience. It incorporates a secure **API** using Laravel **Sanctum** for authentication via Bearer tokens, enabling restricted access and secure CRUD operations. 🌐
-
----
-
-## 📚 Table of Contents 📚
-
-- [Project Overview](#-project-overview)
-- [Key Features](#-key-features)
-- [Installation and Setup](#-installation-and-setup)
-- [File Structure](#-file-structure)
-- [Database Schema](#-database-schema)
-- [Routes Overview](#-routes-overview)
-- [API Documentation](#-api-documentation)
-- [CRUD Operations](#-crud-operations)
-- [Usage Guide](#-usage-guide)
-- [Error Handling and Troubleshooting](#-error-handling-and-troubleshooting)
-- [Contributing](#-contributing)
-- [License](#-license)
+Welcome to the **Task Management System** 🎉! This Laravel-based project provides a robust framework for managing tasks through dynamic AJAX CRUD operations, complete with API support using Bearer Token authentication via Laravel Sanctum. Ideal for developers looking to implement a comprehensive task management solution or integrate Yajra Datatables for efficient data handling.
 
 ---
 
-## 📋 Project Overview 📋
-
-The **Task Management System** is a robust and versatile system allowing users to manage tasks using AJAX-powered CRUD operations on the front end, coupled with secure API access on the backend. Designed with Laravel Sanctum for user authentication and Yajra Datatables for data management, it allows for real-time interactions and a dynamic user experience.
-
-### 🔑 Primary Use Cases 🔑
-
-- Efficient task management and CRUD operations with real-time data updates.
-- API-based task management using Bearer token authentication for security.
-- Dynamic and interactive UI designed for speed and ease of use.
-
----
-
-## 🌟 Key Features 🌟
-
-- **🔐 Secure Authentication with Sanctum**: Access is protected with Bearer Tokens managed by Laravel Sanctum.
-- **⚙️ Dynamic AJAX-based CRUD**: Real-time updates without page reloads for task operations.
-- **📊 Yajra Datatables Integration**: Robust, interactive data table experience.
-- **🌈 User-friendly Interface**: Simplified, efficient task management UI.
-- **🛠️ Extensive API Support**: Complete API endpoints for managing tasks and user accounts.
-- **🔁 Role-based Access Control**: Role-based access and functionality across various user types.
+## 📂 Table of Contents 📂
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Setup](#setup)
+5. [API Documentation](#api-documentation)
+6. [Database Structure](#database-structure)
+7. [Routes](#routes)
+8. [Usage Guide](#usage-guide)
+9. [Error Handling](#error-handling)
+10. [Contributing](#contributing)
+11. [License](#license)
 
 ---
 
-## 💻 Installation and Setup 💻
+## 📖 Introduction
 
-To get started, follow these steps to install, configure, and run the project in a local environment! 🛠️
+This **Task Management System** is designed to handle task-related CRUD operations with efficiency and ease. The system utilizes **Laravel Sanctum** for secure API token authentication, enabling both web and API-based task management. Users and developers can create, update, delete, and view tasks through both interfaces, ensuring flexibility in usage.
 
-### Step 1: Clone the Repository 🖥️
+### 🎯 Purpose
 
+The project is tailored for developers aiming to add or understand the following:
+- Dynamic **AJAX** CRUD operations with **Yajra Datatables** integration.
+- **Laravel Sanctum**-based API authentication using **Bearer Tokens**.
+- Web-based and API-based task management workflows.
+
+---
+
+## ✨ Features ✨
+
+### 🔐 Secure Authentication
+- **Laravel Sanctum** integration for API token-based authentication.
+- **Bearer Tokens** for secure access to API endpoints.
+  
+### 🔄 Dynamic AJAX CRUD
+- Full CRUD (Create, Read, Update, Delete) operations for managing tasks.
+- **Yajra Datatables** support for seamless data handling in AJAX requests.
+
+### 📊 Data Management with Yajra Datatables
+- Real-time data display and filtering with AJAX requests.
+- Pagination, sorting, and searching made easy with Yajra Datatables.
+
+### 🛠️ User and Task Management
+- Create, edit, delete, and view users and tasks.
+- Task status management and due date adjustment.
+
+---
+
+## ⚙️ Installation ⚙️
+
+Follow these steps to get the project up and running on your local machine.
+
+### Prerequisites 📝
+- **PHP** (>= 8.0)
+- **Composer**
+- **Laravel** (>= 9.x)
+- **Node.js** and **npm**
+- **MySQL** or compatible database
+
+### Step 1: Clone the Repository 🗂️
 ```bash
 git clone https://github.com/Ahsanjuly29/TaskMangegementSystem.git
 cd TaskMangegementSystem
 ```
 
 ### Step 2: Install Dependencies 📦
-
-Run the following command to install necessary dependencies:
-
 ```bash
 composer install
-npm install
+npm install && npm run dev
 ```
 
-### Step 3: Environment Setup 🌍
-
-Copy the `.env.example` to `.env` and set up the environment:
-
+### Step 3: Environment Setup 🌐
+Copy the example environment file and configure the necessary credentials.
 ```bash
 cp .env.example .env
-```
-
-Make sure to configure the `.env` file with your database credentials, application settings, and mail configurations.
-
-### Step 4: Generate Application Key 🔑
-
-Generate the app key with the following command:
-
-```bash
 php artisan key:generate
 ```
 
-### Step 5: Run Database Migrations 🗄️
+Configure your `.env` file with appropriate **database**, **mail**, and **Sanctum** settings.
 
+### Step 4: Run Migrations and Seeders 💾
 ```bash
-php artisan migrate
+php artisan migrate --seed
 ```
 
-### Step 6: Seed Database with Initial Data 🌱
-
-For testing purposes, you can populate the database with seeded data:
-
-```bash
-php artisan db:seed
-```
-
-### Step 7: Start the Server 🌐
-
+### Step 5: Start the Development Server 🚀
 ```bash
 php artisan serve
 ```
 
-Access the application at `http://localhost:8000`. 🚀
+Access the application at **http://localhost:8000**.
 
 ---
 
-## 🗂️ File Structure 🗂️
+## 🛠️ Setup 🛠️
 
-Below is the primary file structure of this project:
+Ensure you have set up Laravel Sanctum for API authentication.
 
-```plaintext
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── ApiAuthController.php
-│   │   │   ├── ApiTaskController.php
-│   │   │   └── TaskController.php
-├── config/
-│   └── sanctum.php           # Sanctum Configuration
-├── resources/
-│   ├── views/
-│   │   └── ajax/             # AJAX CRUD Views
-│   │   └── tasks/            # Task Management Views
-├── routes/
-│   ├── api.php               # API routes
-│   └── web.php               # Web routes
-├── .env                      # Environment settings
-└── database/seeders/         # Database seeders
-```
+### Sanctum Installation 🛡️
+1. Install Sanctum via Composer:
+   ```bash
+   composer require laravel/sanctum
+   ```
+2. Publish the Sanctum configuration file:
+   ```bash
+   php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+   ```
+3. Run Sanctum migrations:
+   ```bash
+   php artisan migrate
+   ```
 
-### Key Files and Directories
-
-- **Controllers**: Located in `app/Http/Controllers`, containing the logic for API and web requests.
-- **Routes**: Defined in `routes/api.php` and `routes/web.php`.
-- **Views**: Templates for AJAX-based CRUD in `resources/views/ajax`.
+Sanctum is now ready to be used for secure token-based API authentication!
 
 ---
 
-## 🗄️ Database Schema 🗄️
+## 📡 API Documentation
 
-The database includes tables with relationships between `users` and `tasks`. Below is a quick breakdown:
+This section details each available API endpoint with descriptions, parameters, and example responses.
+
+### 🧾 Authentication Routes
+
+#### Register
+- **Endpoint**: `/api/register`
+- **Method**: `POST`
+- **Description**: Registers a new user.
+- **Parameters**: 
+  - `name`: User’s name.
+  - `email`: User’s email.
+  - `password`: User’s password.
+
+#### Login
+- **Endpoint**: `/api/login`
+- **Method**: `POST`
+- **Description**: Authenticates a user and returns a Bearer Token.
+- **Parameters**: 
+  - `email`: User’s email.
+  - `password`: User’s password.
+
+#### Logout
+- **Endpoint**: `/api/logout`
+- **Method**: `POST`
+- **Description**: Logs out the authenticated user.
+
+#### Fetch User Information
+- **Endpoint**: `/api/user`
+- **Method**: `GET`
+- **Description**: Retrieves information about the authenticated user.
+
+---
+
+### 🗂️ Task Management Routes
+
+#### Create Task
+- **Endpoint**: `/api/api-task`
+- **Method**: `POST`
+- **Description**: Creates a new task.
+- **Parameters**: 
+  - `title`: Title of the task.
+  - `description`: Task details.
+  - `due_date`: Task's due date.
+
+#### Update Task
+- **Endpoint**: `/api/api-task/{id}`
+- **Method**: `PUT`
+- **Description**: Updates an existing task.
+- **Parameters**:
+  - `id`: ID of the task to be updated.
+
+#### Delete Task
+- **Endpoint**: `/api/api-task/{id}`
+- **Method**: `DELETE`
+- **Description**: Deletes an existing task.
+
+#### Change Task Status
+- **Endpoint**: `/api/change-status`
+- **Method**: `GET`
+- **Description**: Updates the status of a task.
+
+---
+
+## 🗄️ Database Structure
 
 ### Tables
+- `users`: Stores user information.
+- `tasks`: Stores task data.
 
-- **Users Table**: Stores user information and credentials.
-- **Tasks Table**: Contains task details such as title, description, and status.
-
-### Migrations
-
-Using **Laravel migrations**, setting up the database is easy. Relationships are established between `users` and `tasks`.
-
----
-
-## 🔀 Routes Overview 🔀
-
-### Web Routes (`web.php`)
-
+### Example Migration: Tasks Table
 ```php
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TaskController;
-use Illuminate\Support\Facades\Route;
-
-require __DIR__ . '/auth.php';
-
-Route::get('/', function () { return view('welcome'); })->name('/');
-Route::get('/dashboard', function () { return view('dashboard'); })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Schema::create('tasks', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained();
+    $table->string('title');
+    $table->text('description')->nullable();
+    $table->date('due_date');
+    $table->enum('status', ['pending', 'completed'])->default('pending');
+    $table->timestamps();
 });
 ```
 
 ---
 
-## 📬 API Documentation 📬
+## 🌐 Routes
 
-### Authentication Routes
+### web.php
+The following routes are used for the web interface, handling authentication and task management views.
 
-| Method | Endpoint            | Description                        |
-|--------|----------------------|------------------------------------|
-| POST   | /register           | Register new user                 |
-| POST   | /login              | User login and token generation   |
-| POST   | /logout             | User logout and token revocation  |
+```php
+Route::get('/', function () {
+    return view('welcome');
+})->name('/');
 
-### Task Management
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('task', TaskController::class);
+});
+```
 
-| Method | Endpoint            | Description                |
-|--------|----------------------|----------------------------|
-| GET    | /api/api-task        | Lists all tasks             |
-| POST   | /api/api-task        | Creates a new task          |
-| GET    | /api/api-task/{id}   | Shows details of a task     |
-| PUT    | /api/api-task/{id}   | Updates an existing task    |
-| DELETE | /api/api-task/{id}   | Deletes a task              |
+### api.php
+These routes are protected by Sanctum for API-based interactions.
 
----
-
-## 📊 CRUD Operations 📊
-
-### ➕ Creating a Task
-
-To create a task, send a `POST` request to `/api/api-task` with task data.
-
-### 📖 Reading Tasks
-
-To view tasks, use a `GET` request to `/api/api-task`.
-
-### ✏️ Updating a Task
-
-To update a task, send a `PUT` request to `/api/api-task/{id}`.
-
-### 🗑️ Deleting a Task
-
-To delete a task, send a `DELETE` request to `/api/api-task/{id}`.
+```php
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::resource('api-task', ApiTaskController::class);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+});
+```
 
 ---
 
-## 🛠️ Usage Guide 🛠️
+## 📖 Usage Guide
 
-1. **Login/Register** - Use the authentication system to register or log in.
-2. **Add Task** - Use the **Create Task** page to add new tasks.
-3. **View Tasks** - List of tasks displayed with pagination.
-4. **Edit Tasks** - Update task details via AJAX.
-5. **Delete Task** - Remove tasks instantly with AJAX-based deletion.
+1. **Task Creation**: Add new tasks through the web interface or via API.
+2. **Task Updates**: Edit task details dynamically using AJAX-powered modals.
+3. **Data Filtering**: Use Yajra Datatables to sort, search, and paginate tasks.
 
 ---
 
-## 🚧 Error Handling and Troubleshooting 🚧
+## ❗ Error Handling
 
-### Database Connection Issues
-
-Ensure `.env` settings are correct for `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD`.
-
-### Authentication Issues
-
-Verify Bearer token is correctly attached for protected routes.
+Common issues:
+- **Authentication Failure**: Ensure Bearer Token is correctly attached for protected routes.
+- **Database Errors**: Run migrations and check .env configurations.
 
 ---
 
-## 🤝 Contributing 🤝
+## 🧩 Contributing
 
-We welcome contributions! Fork the repository, make changes, and submit a pull request. Let’s improve the system together.
+Contributions are welcome! Fork the repository, make your changes, and submit a pull request.
 
-## 📄 License 📄
+---
+
+## 📜 License
 
 This project is licensed under the MIT License.
 
-Thank you for exploring the **Task Management System**! Have questions? Contact us or contribute today!
- 
+---
+
+Thank you for using **Task Management System**! 🔥
+
+---
+```
