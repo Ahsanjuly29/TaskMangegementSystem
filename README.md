@@ -1,988 +1,276 @@
-# 📋 Dynamic AJAX CRUD Task Management using LARAVEL API With BEARER TOKEN
+# 📋 Task Management System using Dynamic AJAX CRUD & Laravel API with BEARER TOKEN
 
-This Laravel project implements AJAX-based CRUD operations for managing tasks. The project includes dynamic modal forms for creating and editing tasks, a multi-delete feature, and integrates with Laravel's API routes for back-end processing.
+[![Laravel](https://img.shields.io/badge/Laravel-8.x-red?style=flat&logo=laravel)](https://laravel.com)
+[![AJAX CRUD](https://img.shields.io/badge/AJAX-CRUD-yellowgreen)](https://developer.mozilla.org/en-US/docs/Web/Guide/AJAX)
+[![Sanctum](https://img.shields.io/badge/Laravel-Sanctum-blueviolet)](https://laravel.com/docs/8.x/sanctum)
+[![Yajra Datatables](https://img.shields.io/badge/Yajra-Datatables-orange)](https://yajrabox.com/docs/laravel-datatables)
 
-## 📑 Table of Contents
+Welcome to the **Task Management System** — a dynamic, API-driven solution designed to enhance task handling and user management in existing Laravel projects. This project leverages **AJAX** for seamless CRUD operations and secures API calls with Laravel Sanctum's Bearer Token.
 
-- [✨ Features](#features)
-- [⚙️ Installation](#installation)
-- [🖥️ Backend API Setup](#backend-api-setup)
-- [🌐 Frontend Setup](#frontend-setup)
-- [🚀 Usage](#usage)
-- [📜 License](#license)
+## 🚀 Features
 
-## ✨ Features
+- **Dynamic AJAX CRUD**: Effortlessly add, edit, delete, and retrieve data.
+- **Bearer Token Authentication**: API endpoints are secured using Laravel Sanctum.
+- **User & Task Management**: Built-in functionalities for user and task operations.
+- **Extendable for Yajra Datatables**: Easily integrate Yajra Datatables for enhanced data display.
 
-- **AJAX CRUD Operations**: Perform create, read, update, and delete operations without page reloads.
-- **Dynamic Modals**: Unified forms for creating and editing tasks within a modal.
-- **Multi-Delete Functionality**: Allows multiple task deletion.
-- **CSRF and Bearer Token Security**: Uses Laravel's built-in security tokens for AJAX requests.
+## 🧩 Prerequisites
 
-## ⚙️ Installation
+- Familiarity with Laravel framework.
+- Laravel 8.x installed and configured.
+- Laravel Sanctum package for token-based API authentication.
+  
+> **Note**: This project assumes prior installation of Laravel; refer to the [official Laravel documentation](https://laravel.com/docs/8.x) if needed.
 
-1. **Clone the Repository**  
+## 🛠️ Installation
+
+1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
-   cd project-directory
+   git clone https://github.com/Ahsanjuly29/TaskMangegementSystem.git
+   cd TaskMangegementSystem
    ```
 
-2. **Install Dependencies**  
-   ```bash
-   composer install
-   npm install
-   npm run dev
-   ```
+2. **Environment Configuration**:
+   Set up `.env` file with database and Sanctum configuration.
 
-3. **Configure Environment**  
-   Copy `.env.example` to `.env`, then configure database and other environment settings.
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
-
-4. **Run Migrations**  
+3. **Database Migration**:
    ```bash
    php artisan migrate
    ```
 
-## 🖥️ Backend API Setup
-
-1. **Create Model, Controller, and Migration for Tasks**  
+4. **Install Sanctum**:
    ```bash
-   // Can create it at once and use resource controller for faster development, Command:
-   php artisan make:model Task -mcr
-   ```
-   Update the migration file to add necessary columns for tasks:
-
-   ```php
-   Schema::create('tasks', function (Blueprint $table) {
-       $table->id();
-       $table->string('name');
-       $table->longText('description')->nullable();
-       $table->string('status')->default('PENDING')->comment('PENDING', 'IN_PROGRESS', 'COMPLETED');
-       $table->unsignedBigInteger('assigned_to');
-       $table->unsignedBigInteger('created_by');
-       $table->dateTime('due_date');
-       $table->timestamps();
-   });
-
-   Schema::table('tasks', function (Blueprint $table) {
-       $table->foreign('assigned_to')->references('id')->on('users');
-       $table->foreign('created_by')->references('id')->on('users');
-   });
+   composer require laravel/sanctum
+   php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+   php artisan migrate
    ```
 
+5. **Set Up Sanctum Middleware**:
+   Add Sanctum's middleware to API routes as per your security requirements.
 
-2. **Define Relationships in the Model**  
-   In `Task.php`, add the `fillable` attributes and define relationships as needed.
+## 📖 Usage
 
-```php
-    <?php
+### API Endpoints
 
-    namespace App\Models;
+This project includes multiple routes for task and user management, secured by Bearer tokens. See `api.php` for more details.
 
-    use Illuminate\Database\Eloquent\Builder;
-    use Illuminate\Database\Eloquent\Factories\HasFactory;
-    use Illuminate\Database\Eloquent\Model;
-    use Illuminate\Support\Facades\Auth;
+#### Example API Routes:
+- **Authentication**:
+  - `POST /api/login` - Login and retrieve a Bearer token.
+- **Tasks**:
+  - `GET /api/tasks` - Retrieve all tasks.
+  - `POST /api/tasks` - Create a new task.
+  - `PUT /api/tasks/{id}` - Update a task.
+  - `DELETE /api/tasks/{id}` - Delete a task.
 
-    class Task extends Model
-    {
-        use HasFactory;
+### AJAX CRUD Operations
 
-        protected $fillable = [
-            'name',
-            'description',
-            'status',
-            'due_date',
-            'created_by',
-            'assigned_to'
-        ];
+1. **User Actions**: Create, read, update, and delete users dynamically without page reload.
+2. **Task Management**: Manage tasks with real-time updates and interactions.
 
-        public function assignedTo()
-        {
-            return $this->belongsTo(User::class, 'assigned_to', 'id');
-        }
+### Using Yajra Datatables
 
-        public function createdBy()
-        {
-            return $this->belongsTo(User::class, 'created_by', 'id');
-        }
+Integrate [Yajra Datatables](https://yajrabox.com/docs/laravel-datatables) for enhanced table views. Refer to Yajra's documentation for setup and customisation.
 
-        public function scopeOwner(Builder $query): void
-        {
-            $query->with('assignedTo', 'createdBy')->whereAny(['assigned_to', 'created_by'], Auth::user()->id);
-        }
-    }
-```
+## 🔐 Security
 
-3. **Set up API Routes**
-    Here i created another Controller for API responses. u can use Upper one(TaskController) 
-   Define routes in `api.php` using a controller, e.g., `ApiTaskController`:
-   ```php
-    // Task Controller
-    Route::middleware(['auth:sanctum'])->group(function () {
-        // Task management Routes Resource Controller
-        Route::resource('api-task', ApiTaskController::class);
-    });
-   ```
+All API routes are secured using **Bearer Tokens** via Laravel Sanctum. This requires users to authenticate to receive tokens, which are then passed with each request for secure communication.
 
-4. **Controller Logic**  
-   Implement CRUD logic in `ApiTaskController.php`. Below is an example `index` method:
+## 📜 Routes Overview
 
-   ```php
-        namespace App\Http\Controllers\ApiAuth;
+The routes are set up to handle user and task management with optimal security:
 
-        use App\Actions\TaskApi\FilterTasks;
-        use App\Http\Controllers\Controller;
-        use App\Http\Requests\TaskRequest;
-        use App\Models\Task;
-        use Illuminate\Http\Request;
-        use Illuminate\Support\Facades\Auth;
+- **`web.php`** includes front-end route logic and redirects.
+- **`api.php`** includes API route definitions, secured with Sanctum middleware.
 
-        class ApiTaskController extends Controller
-        {
-            /**
-            * Display all listing of task.
-            *
-            * @response
-            */
-            public function index(Request $request, FilterTasks $filterTasks)
-            {
-                try {
-                    $data = $filterTasks->handle($request, 100); // dataAmount
+## 🌐 Full Web Page Template for Frontend
 
-                    return successResponse('Showing All Tasks', $data);
-                } catch (\Exception $e) {
-                    return errorResponse($e);
-                }
-            }
+The following HTML template demonstrates the frontend layout and features of the Task Management System. This template includes user authentication, task CRUD operations, and task filtering and sorting.
 
-            /**
-            * Store new task.
-            */
-            public function store(TaskRequest $request)
-            {
-                try {
-                    $data = $request->validated();
-                    $data['created_by'] = $data['assigned_to'] = Auth::user()->id;
-
-                    $taskData = Task::create($data);
-
-                    return successResponse('New Task has been Created', $taskData);
-                } catch (\Exception $e) {
-                    return errorResponse($e);
-                }
-            }
-
-            /**
-            * Display the specified task.
-            */
-            public function show($id)
-            {
-                try {
-                    $taskData = Task::owner()->find($id);
-                    if (empty($taskData)) {
-                        throw new \Exception('Unable to Find This Task');
-                    }
-
-                    $taskData['url'] = route('api-task.update', $id);
-                    $taskData['due_date'] = date('Y-m-d', strtotime($taskData->due_date));
-                    $taskData->unsetRelation('assignedTo')->unsetRelation('createdBy');
-
-                    // Removing Unnecessary Data
-                    unset($taskData->created_by);
-                    unset($taskData->assigned_to);
-
-                    return successResponse('Open Modal', $taskData);
-                } catch (\Exception $e) {
-                    return errorResponse($e);
-                }
-            }
-
-            public function edit($id)
-            {
-                return $this->show($id);
-            }
-
-            /**
-            * Update task in DB.
-            */
-            public function update(TaskRequest $request, string $id)
-            {
-                try {
-                    $taskData = Task::owner()->find($id);
-                    if (empty($taskData)) {
-                        throw new \Exception('Unable to Find This Task');
-                    }
-
-                    $taskData->update($request->validated());
-
-                    return successResponse('This Task has been Updated', $taskData);
-                } catch (\Exception $e) {
-                    return errorResponse($e);
-                }
-            }
-
-            /**
-            * Remove the Task from storage.
-            */
-            public function destroy(Request $request)
-            {
-                try {
-                    Task::owner()->whereIn('id', explode(',', $request->ids))
-                        ->delete();
-                    return successResponse('This Task has been Destroyed');
-                } catch (\Exception $e) {
-                    return errorResponse($e);
-                }
-            }
-        }
-   ```
-
-5. **Custom Requests and Validation**  
-   You can Create a custom request file, e.g., `TaskRequest.php`, to handle validation or use Default Request add validation rules on controller. but i like to make clean Controller:
-
-   ```php
-        namespace App\Http\Requests;
-
-        use App\Traits\IsValidRequest;
-        use Illuminate\Foundation\Http\FormRequest;
-
-        class TaskRequest extends FormRequest
-        {
-            use IsValidRequest;
-
-            /**
-            * Determine if the user is authorized to make this request.
-            */
-            public function authorize(): bool
-            {
-                return true;
-            }
-
-            /**
-            * Get the validation rules that apply to the request.
-            *
-            * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-            */
-            public function rules(): array
-            {
-                return [
-                    'name' => 'required',
-                    'description' => 'nullable',
-                    'status' => 'required|in:PENDING,IN_PROGRESS,COMPLETED',
-                    'due_date' => 'required|date_format:Y-m-d',
-                ];
-            }
-        }
-   ```
-
-   I am using custom Request, and authentication to accesss this Api.
-
-   I am Using a trait `IsValidRequest` to handle validation responses in JSON format, ensuring all API responses are standardized.
-
-```php
-    namespace App\Traits;
-
-    use Illuminate\Contracts\Validation\Validator;
-    use Illuminate\Http\Exceptions\HttpResponseException;
-
-    trait IsValidRequest
-    {
-        public function validationData()
-        {
-            try {
-                // Checking if the request is valid api request or not.
-                isApiRequestValidator($this);
-                return $this->all();
-            } catch (\Exception $e) {
-                throw new HttpResponseException(
-                    response()->json([
-                        'status' => 0,
-                        'message' => $e->getMessage(),
-                    ], 422)
-                );
-            }
-        }
-
-        /**
-         * Function that rewrites the parent method and throwing
-         * custom exceptions of validation.
-         */
-        public function failedValidation(Validator $validator)
-        {
-            if ($validator->fails()) {
-                throw new HttpResponseException(
-                    response()->json([
-                        'status' => 0,
-                        'message' => $validator->getMessageBag()->toArray(),
-                        'errors' => $validator->errors(),
-                    ], 422)
-                );
-            }
-        }
-    }
-
-```
-   I am Using a helper `isApiRequestValidator`;
-    Function that checkes the api request is valid or not.
-    Globally diclared as because use of this function will be used in all the requests
-    and in the respective functions.
-
-```php
-    if (! function_exists('isApiRequestValidator')) {
-        /**
-         * Function that checkes the api request is valid or not.
-         * Globally diclared as because use of this function will be used in all the requests
-         * and in the respective functions.
-         */
-        function isApiRequestValidator($request)
-        {
-            try {
-                $jsonCheck = $request->wantsJson();
-                if (! $jsonCheck) {
-                    throw new Exception('Invalid Request');
-                }
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage());
-            }
-        }
-    }
-```
-
-6. **Using Action Filter Logic (Optional)**  
-   To simplify controller logic, you may use Actions such as `FilterTasks`:
-   ```php
-        namespace App\Actions\TaskApi;
-        use App\Models\Task;
-        class FilterTasks
-        {
-            public function handle($request, $dataAmount)
-            {
-                // there is not administration Control. So, Each person can see only his/her own tasks.
-                $taskData = Task::owner();
-
-                if (! empty($request->status)) {
-                    $taskData->where('status', $request->status);
-                }
-
-                if (! empty($request->searchName)) {
-                    $taskData->where('name', 'like', '%' . $request->searchName . '%');
-                }
-
-                return $taskData->orderBy('due_date', 'ASC')->paginate($dataAmount);
-            }
-        }
-   ```
-##Backend or AP{i}s  Process Complete
-
-## Overview
-
-The system allows users to create, read, update, and delete tasks without refreshing the page, enhancing the user experience.
-
-## 🌐 Frontend Setup
-
-### 1. Define Routes
-
-Add the following route to your `web.php` file to redirect to the view page and apply the middleware group for authentication:
-
-```php
-use App\Models\Task;
-
-Route::get('/ajax-crud', function () {
-    return view('ajax.index', [
-        'tasks' => Task::orderBy('id', 'DESC')->paginate(10)
-    ]);
-})->name('ajax-crud')->middleware('auth');
-```
-
-### 2. Create the View Page
-
-Create a new view file named `index.blade.php` in the `resources/views/ajax` folder. This file will display the tasks and include buttons for CRUD operations.
-
-### index.blade.php
-
-```blade
-@extends('master.app')
-@section('custom-css')
-@endsection
-
-@section('main-body')
-    <div class="container">
-        <div class="card">
-            <div class="card-header">Manage Tasks</div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th class="text-center">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="check_all_box" />
-                                    </div>
-                                </th>
-                                <th>Id</th>
-                                <th>Status</th>
-                                <th>Name</th>
-                                <th>Assigned To</th>
-                                <th>Created By</th>
-                                <th>Due</th>
-                                <th>Created At</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($tasks as $task)
-                                <tr>
-                                    <td class="text-center">
-                                        <div class="form-check">
-                                            <input class="form-check-input checkitem" type="checkbox"
-                                                value="{{ $task->id }}" name="id" />
-                                        </div>
-                                    </td>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $task->status ?? '--' }}</td>
-                                    <td>
-                                        {{ $task->name ?? '--' }}
-                                    </td>
-                                    <td>
-                                        {{ $task->assignedTo->name ?? '--' }}
-                                    </td>
-                                    <td>
-                                        {{ $task->createdBy->name ?? '--' }}
-                                    </td>
-                                    <td>
-                                        {{ date('D Y-m-d H:i', strtotime($task->due_date)) ?? '--' }}
-                                    </td>
-                                    <td>
-                                        {{ date('D Y-m-d H:i', strtotime($task->created_at)) ?? '--' }}
-                                    </td>
-                                    <td>
-                                        <div class="d-flex">
-                                            <button class="btn btn-sm btn-outline-primary me-1 edit-task"
-                                                data-url="{{ route('api-task.edit', $task->id) }}"> Edit
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger ms-1 delete-btn"
-                                                data-url="{{ route('api-task.destroy', $task->id) }}"
-                                                data-id="{{ $task->id }}">
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            <tr>
-                                <td colspan="13">
-                                    <button id="multiple_delete_btn" class="btn btn-xs btn-outline-danger mr-2 d-none"
-                                        type="submit" data-url="{{ route('api-task.destroy', 1) }}">
-                                        Delete all
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="100">
-                                    {!! $tasks->render() !!}
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
-
-@section('custom-js')
-    <script type="text/javascript">
-        $(document).ready(function() {
-            success = function(data) {
-                if (data.message == 'Open Modal') {
-                    openModal(data);
-                } else {
-                    toastr.success(data.message);
-                    closeModal();
-                }
-            }
-        });
-    </script>
-@endsection
-```
-
-### app.blade.php
-
-```blade
+```html
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html>
 
 <head>
-    <meta charset="utf-8">
+    <title>{{ env('APP_NAME') }}</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="bearer-token" content="{{ session('loginToken' . auth()->user()->id) }}">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+        * {
+            font-family: "Figtree" !important
+        }
 
-    {{-- Css --}}
-    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/pagination.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/jquery.dataTables.min.css') }}" />
-    <link rel="stylesheet" href="//cdn.datatables.net/buttons/2.2.3/css/buttons.dataTables.min.css" />
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+        a {
+            letter-spacing: 2px;
+        }
 
-    {{-- Css Files  --}}
-    {{-- @vite(['assets/css/app.css', 'assets/css/bootstrap.css', 'resources/sass/app.scss']) --}}
-    @yield('custom-css')
+        body {
+            background: black;
+            color: rgb(180, 180, 180);
+        }
+
+        h1 {
+            color: rgb(228, 211, 178);
+        }
+
+        .title-list {
+            list-style-type: none;
+        }
+
+        .title-list b {
+            font-size: 20px;
+            color: white;
+        }
+    </style>
 </head>
 
-<body class="font-sans antialiased">
-
-    <div class="container border border-dark border-2 rounded p-0">
-        <div class="p-5 pb-3 bg-secondary text-white text-center">
-            <h1>Task Management System</h1>
-            <p>Create, Update , Read or Delete through Ajax & Jquery</p>
-            <p class="m-0">
-                <b>
-                    {{ Auth::user()->name }}
-                </b>
-            </p>
-        </div>
-        <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-            <div class="container-fluid">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="btn nav-link {{ request()->routeIs('task.*') ? 'active' : '' }}"
-                            href="{{ route('task.index') }}">Data-table Task</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                            href="{{ route('dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn nav-link {{ request()->routeIs('ajax-crud') ? 'active' : '' }}"
-                            href="{{ route('ajax-crud') }}">Ajax Task</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn nav-link" href="{{ route('profile.edit') }}">
-                            {{ __('Profile') }}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <x-dropdown-link :href="route('logout')" class="btn nav-link"
-                                onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-        <div class="mt-5">
-            <div class="row">
-                <div class="col-sm-2">
-                    <ul class="nav nav-pills flex-column">
-                        @if (request()->routeIs('task.*'))
-                            <li class="nav-item">
-                                <a class="nav-link disabled" href="#">Data-table Task</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('task.index') || request()->routeIs('task.edit') ? 'active' : '' }}"
-                                    href="{{ route('task.index') }}">index</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('task.create') ? 'active' : '' }}"
-                                    href="{{ route('task.create') }}">Create</a>
-                            </li>
-                        @elseif(request()->routeIs('ajax-crud'))
-                            <li class="nav-item mb-1">
-                                <a class="border border-primary btn btn-primary nav-link {{ request()->routeIs('ajax-crud') ? 'active' : '' }}"
-                                    href="{{ route('ajax-crud') }}">Ajax Task</a>
-                            </li>
-                            <li class="nav-item mt-1">
-                                <button type="button"
-                                    class="nav-link border border-primary w-100 btn btn-primary create-task"
-                                    data-url="{{ route('api-task.store') }}">
-                                    Create
-                                </button>
-                            </li>
-                        @endif
-                    </ul>
-                    <hr class="d-sm-none">
-                </div>
-                <div class="col-sm-10">
-                    @yield('main-body')
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-5 p-4 bg-dark text-white text-center">
-            <p>Footer</p>
-        </div>
-    </div>
-    @include('ajax.form-modal')
-</body>
-
-
-{{-- Js Files  --}}
-
-<script src="{{ asset('assets/js/jquery.min.js') }}"></script>
-<script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('assets/js/jquery.dataTables.min.js') }}"></script>
-
-<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.flash.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="{{ asset('assets/js/ajax-jquery-crud.js') }}"></script>
-
-{{-- Js Files  --}}
-{{-- @vite(['resources/assets/js/app.js', 'resources/assets/js/bootstrap.js', 'resources/assets/js/bootstrap.min.js', 'resources/assets/js/jquery.min.js']) --}}
-@yield('custom-js')
-
-</html>
-```
-
-### 3. Link the JavaScript File
-
-Download the `ajax-jquery-crud.js` file and link it in your master layout (`app.blade.php`). This JavaScript file will handle all CRUD operations via AJAX and will be available throughout your project.
-
-```js
-<script src="{{ asset('assets/js/ajax-jquery-crud.js') }}"></script>
-```
-
-```js
-    $(document).ready(function () {
-
-
-        editSuccess = function (data) {
-
-        }
-
-        formSuccess = function (data) {
-
-        }
-
-        deleteSuccess = function () {
-            setTimeout(() => {
-                window.location.reload();
-            }, 400); // 100ms delay
-        }
-
-        // Dynamic Ajax Call
-        ajaxCall = function (param) {
-
-            // Pre defining values
-            var method = param.type;
-            var url = param.url;
-            var dataType = param.dataType;
-            var data = param.data;
-            var tostrTimeOut = 3000;
-
-            // Call Ajax Function
-            $.ajax({
-                headers: {
-                    'Authorization': 'Bearer ' + $('meta[name="bearer-token"]').attr('content'), // Laravel bearer token,
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Laravel CSRF token
-                },
-                type: method,
-                url: url,
-                dataType: dataType,
-                data: data,
-                success: function (response) {
-                    response.tostrTimeOut = tostrTimeOut; // adding time(sec) to response
-                    success(response); // Call success callback
-                }
-            }).done(function (data, textStatus, jqXHR) {
-                // Process data, After received in data parameter
-                if (param.crud == 'edit') {
-                    editSuccess(data);
-                }
-                else if (param.crud == 'formSubmit') {
-                    formSuccess(data);
-                }
-                else if (param.crud == 'delete') {
-                    deleteSuccess(data);
-                }
-                else { }
-            }).fail(function ($xhr) {
-
-                var errorData = $xhr.responseJSON; // Get Actual Json Response
-                if (typeof errorData.message == "string") {
-                    toastr.error('', errorData.message, { timeOut: tostrTimeOut }); // toastr Error Messages
-                    // $('.error-message').append(`<span class="alert alert-danger mt-1 p-1">` + errorData.message + `</span>`); // Appending Error Messages
-                }
-                else {
-                    $.each(errorData.message, function (objKey, objValue) { // Finding Each Data
-                        toastr.error('', objValue, { timeOut: tostrTimeOut }); // toastr Error Messages
-                        // $('.' + objKey).append(`<p class="alert alert-danger mt-1 p-1">` + objValue + `</p>`); // Appending Valiadtion Messages For Each Input
-                    });
-                }
-                $('.alert').fadeOut(param.time); // Fading Away Error Message after time(Sec)
-            });
-        }
-
-        // Close Modal
-        closeModal = function () {
-            // $('#form')[0].reset();
-            $('.modal-title').html("Create Form"); // Replace Value
-            $('#form').trigger('reset'); // Form Reset to empty
-            $('#url').val(''); // url set empty
-            $('input[name="_method"]').remove(); // remove input tag
-            $("#form-modal").modal('hide'); // Hide Modal
-        }
-
-        // Close Modal on Click
-        $(document).on('hidden.bs.modal', '#form-modal', function () {
-            closeModal();
-        });
-
-        // Open Modal For Create or Edit data
-        openModal = function (response) {
-
-            // As, it is a single form using for both type file Submit Event.
-            // so response.length defines if it has data object, then it's update form otherwise Create form
-            if (typeof (response) !== "string" && Object.keys(response).length > 0) {
-                $('.modal-title').html("Edit Form"); // Rename Modal Title
-                let data = response.data;
-                $.each(data, function (objKey, objValue) { // Finding/Assigning Each Data on Each Input
-                    $('#' + objKey).find('option[value="${objValue}"]').attr('selected', 'selected').change();
-                    $('#' + objKey).val(objValue); // Appending data for Each Input
-                });
-
-                $('#form').append('<input type="hidden" name="_method" value="PUT">'); // Needed Put method to Update Form
-            }
-            else {
-                $('#url').val(response);
-            }
-
-            $("#form-modal").modal('show'); // Show Modal Form
-        }
-
-        // Show Modal On Click
-        $(document).on('click', '.create-task', function () {
-            url = $(this).attr('data-url');
-            openModal(url);
-        });
-
-        // Edit JS
-        $(document).ready(function () {
-            // Edit/Show Data, Using Ajax
-            $(document).on('click', '.edit-task', function () {
-                var url = $(this).data('url'); // Get the delete URL
-                var param = {
-                    type: 'GET',
-                    url: url,
-                    dataType: 'JSON',
-                }
-
-                ajaxCall(param); // Submit form Using Ajax
-            });
-
-            // Form Submit for Create/Update Using Ajax
-            $(document).on('click', '#formSubmitBtn', function (event) {
-                event.preventDefault();
-
-                var url = $('#url').val(); // Update/Create URL
-                var method = $('input[name="_method"]').val(); // "POST" Method Create Form
-                if (!method) {
-                    method = $('#form').attr('method'); // "PUT" Method Update Form
-                }
-                var param = {
-                    type: method,
-                    url: url,
-                    dataType: 'JSON',
-                    data: $('#form').serialize(),
-                    crud: 'formSubmit'
-                }
-
-                ajaxCall(param); // Submit form Using Ajax
-            });
-        });
-
-        /*
-        // Single delete data from table
-        // Form Submit for Delete Using Ajax
-        */
-        $(document).on('click', '.delete-btn', function () {
-            var id = $(this).data('id'); // Get the task ID
-            var url = $(this).data('url'); // Get the delete URL
-            if (confirm('Are you sure you want to delete this task?')) {
-                var param = {
-                    type: 'DELETE',
-                    url: url,
-                    dataType: 'JSON',
-                    data: {
-                        ids: id
-                    }
-                }
-                ajaxCall(param); // Submit form Using Ajax
-                $(this).closest('tr').remove();
-            }
-        });
-
-        /*
-        //  open multiple delete button
-        */
-        $(".checkitem").change(function () {
-            if (this.checked) {
-                $('#multiple_delete_btn').removeClass('d-none');
-            }
-            else if ($(".table input[name='id']:checked").length < 1) {
-                $('#multiple_delete_btn').addClass('d-none');
-                $('#check_all_box').prop('checked', false);
-            }
-        });
-
-        // Check all boxes
-        $('#check_all_box').click(function (event) {
-            if (this.checked) {
-                $('.checkitem').each(function () {
-                    this.checked = true;
-                    $('#multiple_delete_btn').removeClass('d-none');
-                });
-            } else {
-                $('.checkitem').each(function () {
-                    this.checked = false;
-                    $('#multiple_delete_btn').addClass('d-none');
-                });
-            }
-        });
-
-        $('#multiple_delete_btn').on('click', function (e) {
-            var url = $(this).data('url'); // Get the delete URL
-            let selctedIds = [];
-            $("input:checkbox[name=id]:checked").each(function () {
-                selctedIds.push($(this).val());
-            });
-
-            if (confirm('Are you sure you want to delete this task?')) {
-                var param = {
-                    type: 'DELETE',
-                    url: url,
-                    dataType: 'JSON',
-                    data: {
-                        ids: selctedIds
-                    },
-                    crud: 'delete'
-                }
-
-                ajaxCall(param); // Submit form Using Ajax
-                // deleteSwalAlert(selctedIds); // Calling Custom created Function
-            }
-        });
-    });
-```
-
-## File Structure template/Alternatives
-
-```
-app/
-resources/
-├── views/
-│   ├── ajax/
-│   │   └── index.blade.php
-│   └── master/
-│       └── app.blade.php
-public/
-└── js/
-    └── ajax-jquery-crud.js
-```
-
-## Key Files
-
-### 1. `app.blade.php`
-
-This is the main layout file that includes necessary CSS and JavaScript files.
-
-```blade
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }}</title>
-    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
-    @yield('custom-css')
-</head>
 <body>
-    @yield('main-body')
-    @include('ajax.form-modal')
-    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('assets/js/ajax-jquery-crud.js') }}"></script>
-    @yield('custom-js')
+
+    {{-- @dd(Session::get('loginToken' . auth()->user()->id), session('loginToken' . auth()->user()->id)) --}}
+
+    <!-- Navbar (sit on top) -->
+    <div class="w3-top">
+        @if (Route::has('login'))
+            <div class="w3-bar w3-white w3-padding w3-card" style="letter-spacing:4px;">
+                <a href="{{ route('/') }}" class="w3-bar-item w3-button">{{ env('APP_NAME') }}</a>
+                <!-- Right-sided navbar links. Hide them on small screens -->
+                <div class="w3-right w3-hide-small">
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="w3-bar-item w3-button">Dashboard</a>
+                    @else
+                        <a href="{{ route('login') }}" class="w3-bar-item w3-button">Login</a>
+                        <a href="{{ route('register') }}" class="w3-bar-item w3-button">Register</a>
+                    @endauth
+                </div>
+            </div>
+        @endif
+    </div>
+
+    <!-- Page content -->
+    <div class="w3-content" style="max-width:1100px">
+
+        <!-- About Section -->
+        <div class="w3-row w3-padding-64" id="about">
+            <div class="w3-col m6 w3-padding-large w3-hide-small">
+                <a href="https://laracasts.com/">
+                    <img src="https://laracasts.com/images/path/twitter-card.jpg?v=12"
+                        class="w3-round w3-image w3-opacity-min" alt="Table Setting" width="600" height="750">
+                </a>
+            </div>
+
+            <div class="w3-col m6 w3-padding-large">
+                <h1>Website Features: </h1>
+                <div>
+                    <li class="title-list">
+                        <p class="w3-large">
+                            <b>User Authentication:</b>
+                            Users should be able to register, log in, and log out.
+                        </p>
+                    </li>
+                    <li class="title-list">
+                        <p class="w3-large">
+                            <b>Task CRUD Operations:</b>
+                        <ol>
+                            <li>
+                                <p class="w3-large">
+                                    <b>Create:</b>
+                                    Users are able to add new tasks.
+                                </p>
+                            </li>
+                            <li>
+                                <p class="w3-large">
+                                    <b>Read:</b>
+                                    Users are able to view a list of their tasks.
+                                </p>
+                            </li>
+                            <li>
+                                <p class="w3-large">
+                                    <b>Update: </b>
+                                    Users are able to edit existing tasks.
+                                </p>
+                            </li>
+                            <li>
+                                <p class="w3-large">
+                                    <b>Delete:</b>
+                                    Users are able to remove tasks.
+                                </p>
+                            </li>
+                        </ol>
+                        </p>
+                    </li>
+                    <li class="title-list">
+                        <p class="w3-large">
+                            <b>Task Filtering and Sorting:</b>
+                        <ol>
+                            <li>
+                                <p>Filter tasks by status (e.g., Pending, In Progress, Completed).</p>
+                            </li>
+                            <li>
+                                <p>Sort tasks by due date.</p>
+                            </li>
+                        </ol>
+                        </p>
+                    </li>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <!-- Menu Section -->
+        <div class="w3-row w3-padding-64" id="menu">
+            <div class="w3-col l6 w3-padding-large">
+                <h1 class="w3-center">API Documentation</h1><br>
+                <ol>
+                    <li>JSON View</li>
+                    <li>Graphical View</li>
+                </ol>
+            </div>
+
+            <div class="w3-col l6 w3-padding-large">
+                <h1>JSON View</h1><br>
+                <iframe class="w
+
+3-round w3-image w3-opacity-min" src="http://127.0.0.1:8000/docs/api.json"
+                    name="iframe_a" style="height:80vh; width:100%;"></iframe>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Contact Section -->
+        <div class="w3-container w3-padding-64" id="contact">
+            <h1>Graphical View</h1><br>
+            <iframe class="w3-round w3-image w3-opacity-min" src="http://127.0.0.1:8000/docs/api#/" name="iframe_a"
+                style="height:80vh; width:100%;"></iframe>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w3-center w3-light-grey w3-padding-32">
+        <p>Developed by
+            <a href="https://github.com/Ahsanjuly29" title="Ahsan Github Link" target="_blank"
+                class="w3-hover-text-green">
+                Ahsan Ahmed
+            </a>
+        </p>
+    </footer>
 </body>
+
 </html>
 ```
 
-### 2. `index.blade.php`
+## 🔗 Resources
 
-This file contains the table for displaying tasks and action buttons for CRUD operations.
+- [Laravel Documentation](https://laravel.com/docs/8.x)
+- [Laravel Sanctum](https://laravel.com/docs/8.x/sanctum)
+- [AJAX CRUD Tutorial](https://developer.mozilla.org/en-US/docs/Web/Guide/AJAX)
+- [Yajra Datatables](https://yajrabox.com/docs/laravel-datatables)
 
-```blade
-@extends('master.app')
-@section('main-body')
-<div class="container">
-    <div class="card">
-        <div class="card-header">Manage Tasks</div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover" id="task-table">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Name</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($tasks as $task)
-                        <tr>
-                            <td>{{ $task->id }}</td>
-                            <td>{{ $task->name }}</td>
-                            <td>
-                                <button class="btn btn-primary edit" data-id="{{ $task->id }}">Edit</button>
-                                <button class="btn btn-danger delete" data-id="{{ $task->id }}">Delete</button>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <button class="btn btn-success" id="add-task">Add Task</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection
-```
+## 📞 Support
 
-### 3. `ajax-jquery-crud.js`
-
-This JavaScript file handles AJAX requests for creating, updating, and deleting tasks.
-
-```javascript 
-    <script src="{{ asset('assets/js/ajax-jquery-crud-update.js') }}"></script>
-```
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for more details.
+For issues or further assistance, please feel free to reach out through the repository's issues section.
